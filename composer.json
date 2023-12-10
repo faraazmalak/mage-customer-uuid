@@ -1,5 +1,5 @@
 {
-    "name": "quarry/module-customer-uuid",
+    "name": "quarry/customer-uuid",
     "description": "A Magento 2 module that adds a new uuid attribute for customers",
     "type": "magento2-module",
     "authors": [{
