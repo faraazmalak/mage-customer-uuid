@@ -1,13 +1,10 @@
 <?php
-// app/code/Custom/CustomerAttribute/Setup/InstallData.php
 
 namespace Quarry\CustomerUuid\Setup;
 
-use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Customer;
-use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
@@ -15,49 +12,45 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 class InstallData implements InstallDataInterface
 {
     private $customerSetupFactory;
+    private $attributeSetFactory;
+    private const ATTRIBUTE_NAME ='uuid';
 
-    public function __construct(CustomerSetupFactory $customerSetupFactory)
+    public function __construct(CustomerSetupFactory $customerSetupFactory, AttributeSetFactory $attributeSetFactory)
     {
-        echo 'QUARRY UUID';
         $this->customerSetupFactory = $customerSetupFactory;
+        $this->attributeSetFactory = $attributeSetFactory;
     }
 
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
-        echo 'QUARRY UUID';
         $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
-
-        $customerSetup->addAttribute(Customer::ENTITY, 'uuid', [
+        $customerSetup->addAttribute(Customer::ENTITY, self::ATTRIBUTE_NAME, [
             'type' => 'varchar',
-            'label' => 'UUID',
+            'label' => strtoupper(self::ATTRIBUTE_NAME),
             'input' => 'text',
+            'required' => true,
+            'unique' => true,
             'visible' => true,
-            'required' => false,
             'user_defined' => true,
-            'system' => false,
-            'position' => 100,
+            'position' => 999,
+            'system' => 0,
             'is_used_in_grid' => true,
             'is_visible_in_grid' => true,
             'is_filterable_in_grid' => true,
-            'is_searchable_in_grid' => true,
-            'is_html_allowed_on_front' => false,
-            'visible_on_front' => false,
-            'used_in_forms' => ['adminhtml_customer'],
+            'is_searchable_in_grid' => true
         ]);
 
-        $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'uuid');
-        $attribute->setData('used_in_forms', ['adminhtml_customer']);
+        $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
+        $attributeSetId = $customerEntity->getDefaultAttributeSetId();
+        $attributeSet = $this->attributeSetFactory->create();
+        $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
+
+        $attribute = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, 'uuid')
+            ->addData([
+                'attribute_set_id' => $attributeSetId,
+                'attribute_group_id' => $attributeGroupId
+            ]);
+        echo 'Quarry UUID ' . ' ' . $attributeGroupId . ' ' . $attributeSetId;
         $attribute->save();
-
-        // Assign UUID to existing customers
-        $this->assignUuidToExistingCustomers();
-    }
-
-    private function assignUuidToExistingCustomers()
-    {
-        // Implement logic to assign unique UUIDs to existing customers
     }
 }
-
-
-?>
