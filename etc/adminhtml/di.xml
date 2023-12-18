@@ -14,4 +14,10 @@
             </argument>
         </arguments>
     </type>
+    <type name="Quarry\CustomerUuid\Observer\CustomerSaveBeforeObserver">
+        <arguments>
+            <argument name="customer_repo" xsi:type="object">Magento\Customer\Api\CustomerRepositoryInterface</argument>
+            <argument name="logger" xsi:type="object">Quarry\CustomerUuid\Logger\Logger</argument>
+        </arguments>
+    </type>
 </config>
