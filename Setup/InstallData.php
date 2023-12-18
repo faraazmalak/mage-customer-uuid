@@ -50,7 +50,6 @@ class InstallData implements InstallDataInterface
                 'attribute_set_id' => $attributeSetId,
                 'attribute_group_id' => $attributeGroupId
             ]);
-        echo 'Quarry UUID ' . ' ' . $attributeGroupId . ' ' . $attributeSetId;
         $attribute->save();
     }
 }
