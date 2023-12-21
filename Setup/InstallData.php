@@ -30,7 +30,7 @@ class InstallData implements InstallDataInterface
             'input' => 'text',
             'required' => true,
             'unique' => true,
-            'visible' => true,
+            'visible' => false,
             'user_defined' => true,
             'position' => 999,
             'system' => 0,
