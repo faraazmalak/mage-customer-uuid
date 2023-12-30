@@ -8,7 +8,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Quarry\CustomerUuid\Exception\GraphQlUuidResolveException;
+use Quarry\CustomerUuid\Exception\GraphQlUuidException;
 use Quarry\CustomerUuid\Logger\Logger;
 
 /**
@@ -36,7 +36,7 @@ class CustomerUuid implements ResolverInterface
      * @param array|null $value
      * @param array|null $args
      * @return void
-     * @throws GraphQlUuidResolveException
+     * @throws GraphQlUuidException
      * @throws LocalizedException
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
@@ -45,8 +45,13 @@ class CustomerUuid implements ResolverInterface
         try{
             $customer = $this->customerRepository->getById($customerId);
         }catch(NoSuchEntityException $e){
-            throw new GraphQlUuidResolveException(__("Customer ID $customerId not found."), $this->logger, $e);
+            throw new GraphQlUuidException(__("Customer ID $customerId not found."), $this->logger, $e);
         }
-        return $customer->getCustomAttribute('uuid')?->getValue();
+
+        $uuid = $customer->getCustomAttribute('uuid')?->getValue();
+        if($uuid === null){
+            throw new GraphQlUuidException(__("UUID is not defined"), $this->logger);
+        }
+        return $uuid ;
     }
 }
