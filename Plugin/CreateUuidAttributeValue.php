@@ -55,7 +55,7 @@ class CreateUuidAttributeValue
                 $this->customerCollection->addAttributeToFilter('uuid', $uuid);
                 $isUuidDuplicate = $this->customerCollection->getSize() > 0;
             } catch (LocalizedException $e) {
-                $errorMessage = __("Unable to guarantee uniqueness of UUID $uuid. Try resubmitting the form.");
+                $errorMessage = __("Unable to validate uniqueness of UUID $uuid. Try resubmitting the form.");
                 throw new UuidValidateException($errorMessage, $this->logger, $e);
             }
 
