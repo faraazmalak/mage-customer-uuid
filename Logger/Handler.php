@@ -1,18 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Quarry\CustomerUuid\Logger;
 
-class Handler extends \Magento\Framework\Logger\Handler\Base
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Monolog\Handler\StreamHandler;
+
+/**
+ * Handler for quarry logger
+ */
+class Handler extends StreamHandler
 {
     /**
-     * Logging level
-     * @var int
+     * @param DirectoryList $directoryList
+     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    protected $loggerType = Logger::INFO;
-
-    /**
-     * File name
-     * @var string
-     */
-    protected $fileName = '/var/log/quarry.log';
+    public function __construct(DirectoryList $directoryList)
+    {
+        $varLogFolderPath = @$directoryList->getPath(DirectoryList::LOG) ?? 'var/log';
+        $logFile = $varLogFolderPath . '/quarry_customeruuid.log';
+        parent::__construct($logFile);
+    }
 }
+
