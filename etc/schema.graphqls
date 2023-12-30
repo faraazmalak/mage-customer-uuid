@@ -1,0 +1,7 @@
+# Add uuid field for Customer
+type Customer {
+    uuid: String @doc(description: "Customer UUID Attribute")
+    @resolver(
+        class: "\\Quarry\\CustomerUuid\\Model\\Resolver\\CustomerUuid"
+    )
+}

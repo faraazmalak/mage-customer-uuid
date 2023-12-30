@@ -3,6 +3,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Quarry_CustomerUuid" setup_version="1.0.0">
         <sequence>
+            <module name="Magento_Customer"/>
             <module name="Ramsey_Uuid"/>
         </sequence>
     </module>
