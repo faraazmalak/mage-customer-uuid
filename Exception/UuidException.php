@@ -5,7 +5,7 @@ namespace Quarry\CustomerUuid\Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Psr\Log\LoggerInterface;
-use \Exception;
+use Exception;
 
 /**
  * Base exception class, with logging functionality. Other exceptions in this module, extend this class
@@ -17,7 +17,7 @@ class UuidException extends LocalizedException{
      * @param Exception|null $cause
      * @param int $code
      */
-    public function __construct(Phrase $phrase, LoggerInterface $logger=null, Exception $cause = null, int $code = 0)
+    public function __construct(Phrase $phrase, LoggerInterface $logger=null, Exception $cause = null, $code = 0)
     {
         parent::__construct($phrase, $cause, $code);
         if ($logger !== null) {

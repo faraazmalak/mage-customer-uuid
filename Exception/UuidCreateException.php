@@ -2,6 +2,8 @@
 
 namespace Quarry\CustomerUuid\Exception;
 
+use Psr\Log\LoggerInterface;
+use Exception;
 use Magento\Framework\Phrase;
 
 /**
@@ -11,10 +13,10 @@ class UuidCreateException extends UuidException
 {
     /**
      * @param Phrase $phrase
-     * @param $logger
-     * @param $cause
+     * @param LoggerInterface|null $logger
+     * @param Exception|null $cause
      */
-    public function __construct(Phrase $phrase, $logger = null, $cause=null)
+    public function __construct(Phrase $phrase, LoggerInterface $logger = null, Exception $cause=null)
     {
         parent::__construct($phrase, $logger, $cause);
     }
