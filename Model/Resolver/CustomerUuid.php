@@ -35,16 +35,17 @@ class CustomerUuid implements ResolverInterface
      * @param ResolveInfo $info
      * @param array|null $value
      * @param array|null $args
-     * @return \Magento\Framework\GraphQl\Query\Resolver\Value|mixed|null
-     * @throws GraphQlUuidResolveException|LocalizedException
+     * @return void
+     * @throws GraphQlUuidResolveException
+     * @throws LocalizedException
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
+        $customerId = $context->getUserId();
         try{
-            $customerId = $context->getUserId();
             $customer = $this->customerRepository->getById($customerId);
         }catch(NoSuchEntityException $e){
-            throw new GraphQlUuidResolveException(__("Customer not found."), $this->logger, $e);
+            throw new GraphQlUuidResolveException(__("Customer ID $customerId not found."), $this->logger, $e);
         }
         return $customer->getCustomAttribute('uuid')?->getValue();
     }
