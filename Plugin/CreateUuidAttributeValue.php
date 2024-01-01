@@ -10,8 +10,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Message\Notice;
 use Quarry\CustomerUuid\Exception\DuplicateUuidException;
-use Quarry\CustomerUuid\Exception\UuidCreateException;
-use Quarry\CustomerUuid\Exception\UuidValidateException;
+use Quarry\CustomerUuid\Exception\UuidException;
+use Quarry\CustomerUuid\Exception\InvalidUuidException;
 use Quarry\CustomerUuid\Logger\Logger;
 use Ramsey\Uuid\Uuid;
 
@@ -46,8 +46,8 @@ class CreateUuidAttributeValue
      * @param CustomerInterface $customer
      * @return CustomerInterface[]
      * @throws DuplicateUuidException
-     * @throws UuidCreateException
-     * @throws UuidValidateException
+     * @throws UuidException
+     * @throws InvalidUuidException
      */
     public function beforeSave(CustomerRepositoryInterface $customerRepository, CustomerInterface $customer): array
     {
@@ -91,8 +91,8 @@ class CreateUuidAttributeValue
      *
      * @return string
      * @throws DuplicateUuidException
-     * @throws UuidCreateException
-     * @throws UuidValidateException
+     * @throws UuidException
+     * @throws InvalidUuidException
      */
     private function generateUuid(): string
     {
@@ -100,7 +100,7 @@ class CreateUuidAttributeValue
             $uuid = Uuid::uuid4()->toString();
         } catch (Exception $e) {
             $message = __('Error generating a UUID. Try submitting the form again.');
-            throw new UuidCreateException($message, $this->logger, $e);
+            throw new UuidException($message, $this->logger, $e);
         }
 
         try {
@@ -109,7 +109,7 @@ class CreateUuidAttributeValue
             $isUuidDuplicate = $this->customerCollection->getSize() > 0;
         } catch (LocalizedException $e) {
             $errorMessage = __("Unable to validate uniqueness of UUID $uuid. Try resubmitting the form.");
-            throw new UuidValidateException($errorMessage, $this->logger, $e);
+            throw new InvalidUuidException($errorMessage, $this->logger, $e);
         }
 
         if ($isUuidDuplicate) {

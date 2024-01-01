@@ -2,21 +2,22 @@
 
 namespace Quarry\CustomerUuid\Exception;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Quarry\CustomerUuid\Logger\Logger;
 use Exception;
 
-
 /**
- * Exception thrown when a newly generated UUID is already in-use by another customer
+ * Exception thrown when there is an error validating UUID.
  */
-class DuplicateUuidException extends UuidException {
+class InvalidUuidException extends LocalizedException
+{
     /**
      * @param Phrase $phrase
      * @param LoggerInterface|null $logger
      * @param Exception|null $cause
      */
-    public function __construct(Phrase $phrase, Logger $logger=null, Exception $cause=null)
+    public function __construct(Phrase $phrase, Logger $logger = null, Exception $cause=null)
     {
         parent::__construct($phrase, $logger, $cause);
         if ($logger !== null) {

@@ -4,7 +4,7 @@ namespace Quarry\CustomerUuid\Exception;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-use Psr\Log\LoggerInterface;
+use Quarry\CustomerUuid\Logger\Logger;
 use Exception;
 
 /**
@@ -17,12 +17,12 @@ class UuidException extends LocalizedException{
      * @param Exception|null $cause
      * @param int $code
      */
-    public function __construct(Phrase $phrase, LoggerInterface $logger=null, Exception $cause = null, $code = 0)
+    public function __construct(Phrase $phrase, Logger $logger=null, Exception $cause = null, $code = 0)
     {
         parent::__construct($phrase, $cause, $code);
         if ($logger !== null) {
-            $technicalError = $cause instanceof Exception ? $cause->getMessage() : null;
-            $logger->critical(__("$phrase $technicalError"));
+            $cause = $cause ?? $this;
+            $logger->logCritical("{$phrase->render()}", $cause);
         }
     }
 }

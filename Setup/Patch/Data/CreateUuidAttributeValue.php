@@ -9,7 +9,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Quarry\CustomerUuid\Exception\DuplicateUuidException;
-use Quarry\CustomerUuid\Exception\UuidCreateException;
 use Quarry\CustomerUuid\Exception\UuidException;
 use Quarry\CustomerUuid\Logger\Logger;
 use Ramsey\Uuid\Uuid;
@@ -120,7 +119,7 @@ class CreateUuidAttributeValue implements DataPatchInterface
         } else if (count($customersWithError) > 0) {
             $customerList = implode(',', $customersWithError);
             $errorMessage = __("Error creating UUID for these customers IDs: \n$customerList.\nTry running setup:upgrade again.");
-            throw new UuidCreateException($errorMessage, $this->logger);
+            throw new UuidException($errorMessage, $this->logger);
         }
         $this->moduleDataSetup->endSetup();
     }

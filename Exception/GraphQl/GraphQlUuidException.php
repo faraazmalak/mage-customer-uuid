@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Quarry\CustomerUuid\Exception;
+namespace Quarry\CustomerUuid\Exception\GraphQl;
 
 use Exception;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\Phrase;
-use Psr\Log\LoggerInterface;
+use Quarry\CustomerUuid\Logger\Logger;
 
 /**
  * Exception thrown when there is an graphQl error fetching customer uuid
@@ -18,12 +18,12 @@ class GraphQlUuidException extends GraphQlInputException
      * @param Exception|null $cause
      * @param int $code
      */
-    public function __construct(Phrase $phrase, LoggerInterface $logger = null, Exception $cause = null, $code = 0)
+    public function __construct(Phrase $phrase, Logger $logger = null, Exception $cause = null, $code = 0)
     {
         parent::__construct($phrase, $cause, $code);
         if ($logger !== null) {
-            $technicalError = $cause instanceof Exception ? $cause->getMessage() : null;
-            $logger->critical(__("$phrase $technicalError"));
+            $cause = $cause ?? $this;
+            $logger->logError("{$phrase->render()}", $cause);
         }
     }
 }

@@ -8,8 +8,10 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Quarry\CustomerUuid\Exception\GraphQlUuidException;
+use Quarry\CustomerUuid\Exception\GraphQl\GraphQlUuidException;
+use Quarry\CustomerUuid\Exception\GraphQl\GraphQlInvalidUuidException;
 use Quarry\CustomerUuid\Logger\Logger;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Resolver to retrieve uuid based on auth token
@@ -48,9 +50,14 @@ class CustomerUuid implements ResolverInterface
             throw new GraphQlUuidException(__("Customer ID $customerId not found."), $this->logger, $e);
         }
 
-        $uuid = $customer->getCustomAttribute('uuid')?->getValue();
-        if($uuid === null){
-            throw new GraphQlUuidException(__("UUID is not defined"), $this->logger);
+        $uuid = $customer->getCustomAttribute('uuid')?->getValue() ?? '';
+        if(strlen($uuid) === 0){
+            throw new GraphQlInvalidUuidException(__("UUID cannot be null"), $this->logger);
+        }else{
+            $isUuidValid = @(Uuid::isValid($uuid)) ?? false;
+            if(!$isUuidValid){
+                throw new GraphQlInvalidUuidException(__("Invalid UUID format"), $this->logger);
+            }
         }
         return $uuid ;
     }
