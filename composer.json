@@ -17,7 +17,8 @@
     "prefer-stable": true,
     "require": {
         "php": "^8.0",
-        "ramsey/uuid": "~4.7.4"
+        "ramsey/uuid": "~4.7.4",
+        "magento/module-customer": "^103.0.6-p2"
     },
     "autoload": {
         "files": [ "registration.php" ],
