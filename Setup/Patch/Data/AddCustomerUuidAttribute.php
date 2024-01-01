@@ -5,6 +5,7 @@ namespace Quarry\CustomerUuid\Setup\Patch\Data;
 use Exception;
 use Magento\Customer\Api\CustomerMetadataInterface;
 use Magento\Customer\Model\ResourceModel\Attribute as AttributeResource;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
@@ -16,9 +17,10 @@ use Quarry\CustomerUuid\Exception\UuidException;
  */
 class AddCustomerUuidAttribute implements DataPatchInterface
 {
-    private $moduleDataSetup;
+    private ModuleDataSetupInterface $moduleDataSetup;
     private $customerSetup;
     private $attributeResource;
+    private $attributeSetFactory;
     private $logger;
 
     private const ATTRIBUTE_NAME ='uuid';
@@ -33,12 +35,14 @@ class AddCustomerUuidAttribute implements DataPatchInterface
         ModuleDataSetupInterface $moduleDataSetup,
         CustomerSetupFactory $customerSetupFactory,
         AttributeResource $attributeResource,
+        AttributeSetFactory $attributeSetFactory,
         Logger $logger
     )
     {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->customerSetup = $customerSetupFactory->create(['setup' => $moduleDataSetup]);
         $this->attributeResource = $attributeResource;
+        $this->attributeSetFactory = $attributeSetFactory;
         $this->logger = $logger;
     }
 
@@ -114,7 +118,7 @@ class AddCustomerUuidAttribute implements DataPatchInterface
             // Save attribute using its resource model
             $this->attributeResource->save($attribute);
         } catch (Exception $e) {
-            throw new UuidException($e->getMessage(), $this->logger);
+            throw new UuidException(__($e->getMessage()), $this->logger);
         }
         $this->moduleDataSetup->getConnection()->endSetup();
     }
