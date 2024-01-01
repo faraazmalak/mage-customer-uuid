@@ -9,9 +9,10 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Quarry\CustomerUuid\Exception\DuplicateUuidException;
+use Quarry\CustomerUuid\Exception\InvalidUuidException;
 use Quarry\CustomerUuid\Exception\UuidException;
+use Quarry\CustomerUuid\Helper\CustomerUuid;
 use Quarry\CustomerUuid\Logger\Logger;
-use Ramsey\Uuid\Uuid;
 
 
 /**
@@ -23,6 +24,7 @@ class CreateUuidAttributeValue implements DataPatchInterface
     private $customerCollection;
     private $customerRepository;
     private $logger;
+    private $customerUuidHelper;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
@@ -34,6 +36,7 @@ class CreateUuidAttributeValue implements DataPatchInterface
         ModuleDataSetupInterface    $moduleDataSetup,
         CollectionFactory           $customerCollectionFactory,
         CustomerRepositoryInterface $customerRepository,
+        CustomerUuid                $customerUuidHelper,
         Logger                      $logger
     )
     {
@@ -41,6 +44,7 @@ class CreateUuidAttributeValue implements DataPatchInterface
         $this->customerCollection = $customerCollectionFactory->create();
         $this->customerRepository = $customerRepository;
         $this->logger = $logger;
+        $this->customerUuidHelper = $customerUuidHelper;
     }
 
     /**
@@ -83,40 +87,26 @@ class CreateUuidAttributeValue implements DataPatchInterface
         $this->moduleDataSetup->startSetup();
         $this->customerCollection->addAttributeToFilter('uuid', ['null' => true]);
         $customersWithoutUuid = $this->customerCollection->getItems();
-        $customersWithDuplicateUuid = [];
         $customersWithError = [];
 
         foreach ($customersWithoutUuid as $customer) {
             $customerId = $customer->getId();
             try {
-                $uuid = Uuid::uuid4()->toString();
+                $uuid = $this->customerUuidHelper->createUuid();
                 $customer = $this->customerRepository->getById($customerId);
 
-                $this->customerCollection->clear();
-                // Optimize database query
-                $this->customerCollection->getSelect()->limit(1);
-                $this->customerCollection->addAttributeToFilter('uuid', $uuid);
+                $customer->setCustomAttribute('uuid', $uuid);
+                $this->customerRepository->save($customer);
+                $this->logger->logInfo("UUID $uuid created for customer ID $customerId");
 
-                $isUuidDuplicate = $this->customerCollection->getSize() > 0;
-                if ($isUuidDuplicate) {
-                    $customersWithDuplicateUuid[] = $customerId;
-                } else {
-                    $customer->setCustomAttribute('uuid', $uuid);
-                    $this->customerRepository->save($customer);
-                    $this->logger->info("UUID $uuid created for customer ID $customerId");
-                }
             } catch (NoSuchEntityException $e) {
-                $this->logger->warning("Customer ID $customerId does not exist.");
-            } catch (LocalizedException $e) {
+                $this->logger->logWarning("Customer ID $customerId does not exist.");
+            } catch (DuplicateUuidException | InvalidUuidException | UuidException) {
                 $customersWithError[] = $customerId;
-                $this->logger->critical("Failed to assign UUID for customer ID: $customerId. {$e->getMessage()}");
+                $this->logger->logCritical("Failed to assign UUID for customer ID: $customerId. {$e->getMessage()}");
             }
         }
-        if (count($customersWithDuplicateUuid) > 0) {
-            $customerList = implode(',', $customersWithDuplicateUuid);
-            $errorMessage = __("Duplicate UUIDs generated for these customers IDs: \n$customerList.\nTry running setup:upgrade again.");
-            throw new DuplicateUuidException($errorMessage, $this->logger);
-        } else if (count($customersWithError) > 0) {
+        if (count($customersWithError) > 0) {
             $customerList = implode(',', $customersWithError);
             $errorMessage = __("Error creating UUID for these customers IDs: \n$customerList.\nTry running setup:upgrade again.");
             throw new UuidException($errorMessage, $this->logger);

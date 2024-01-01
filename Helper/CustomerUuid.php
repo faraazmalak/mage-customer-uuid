@@ -7,12 +7,17 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Quarry\CustomerUuid\Exception\DuplicateUuidException;
 use Quarry\CustomerUuid\Exception\InvalidUuidException;
+use Quarry\CustomerUuid\Exception\UuidException;
 use Quarry\CustomerUuid\Logger\Logger;
+use \Magento\Customer\Model\ResourceModel\Customer\Collection;
 use Ramsey\Uuid\Uuid;
 
+/**
+ * This class provides utility methods to work with customer UUIDs
+ */
 class CustomerUuid extends AbstractHelper
 {
-    private $customerCollection;
+    private Collection $customerCollection;
     private Logger $logger;
 
     public function __construct(CollectionFactory $customerCollectionFactory, Logger $logger)
@@ -21,17 +26,35 @@ class CustomerUuid extends AbstractHelper
         $this->logger = $logger;
     }
 
-    public function createUuid()
+    /**
+     * Create a new uuid
+     *
+     * @throws DuplicateUuidException
+     * @throws InvalidUuidException|UuidException
+     */
+    public function createUuid(): string
     {
-        $uuid = Uuid::uuid4()->toString();
+        try{
+            $uuid = Uuid::uuid4()->toString();
+        }catch(\Exception $e){
+            throw new UuidException(__("Error generating a UUID."), $this->logger, $e);
+        }
+
         if ($this->isUuidDuplicate($uuid)) {
-            $message = __("UUID $uuid has already been assigned to another customer. Try resubmitting the form.");
+            $message = __("UUID $uuid has already been assigned to another customer.");
             throw new DuplicateUuidException($message, $this->logger);
         }
-        return true;
+        return $uuid;
     }
 
-    public function isUuidDuplicate($uuid)
+    /**
+     * Check if the supplied UUID is already assigned to another customer
+     *
+     * @param $uuid
+     * @return bool
+     * @throws InvalidUuidException
+     */
+    public function isUuidDuplicate($uuid): bool
     {
         try {
             $this->customerCollection->clear();
@@ -39,14 +62,21 @@ class CustomerUuid extends AbstractHelper
             $this->customerCollection->addAttributeToFilter('uuid', $uuid);
             $isUuidDuplicate = $this->customerCollection->getSize() > 0;
         } catch (LocalizedException $e) {
-            $errorMessage = __("Unable to validate uniqueness of UUID $uuid. Try resubmitting the form.");
+            $errorMessage = __("Unable to validate uniqueness of UUID $uuid.");
             throw new InvalidUuidException($errorMessage, $this->logger, $e);
         }
         return $isUuidDuplicate;
     }
 
-    public function isUuidValid($uuid)
+    /**
+     * Validate the UUID format
+     *
+     * @param $uuid
+     * @return bool
+     */
+    public function isUuidValid($uuid): bool
     {
+        $uuid = $uuid ?? '';
         return @(Uuid::isValid($uuid)) ?? false;
     }
 

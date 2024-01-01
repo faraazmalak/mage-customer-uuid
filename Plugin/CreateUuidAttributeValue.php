@@ -52,19 +52,21 @@ class CreateUuidAttributeValue
      */
     public function beforeSave(CustomerRepositoryInterface $customerRepository, CustomerInterface $customer): array
     {
-        // $customer->getId() returns null for new customers
-        $this->isNewCustomer = $customer->getId() === null;
-        if($this->isNewCustomer){
-            $this->logger->logDebug('NEW CUSTOMER');
-            $uuid = $this->customerUuidHelper->createUuid();
-            $customer->setCustomAttribute('uuid', $uuid);
-        }else{
-            $this->logger->logDebug('REPEAT CUSTOMER');
-            $this->originalUuid = $customer->getCustomAttribute('uuid')?->getValue() ?? '';
-            if (!$this->customerUuidHelper->isUuidValid($this->originalUuid)) {
+        try{
+            // $customer->getId() returns null for new customers
+            $this->isNewCustomer = $customer->getId() === null;
+            if($this->isNewCustomer){
                 $uuid = $this->customerUuidHelper->createUuid();
                 $customer->setCustomAttribute('uuid', $uuid);
+            }else{
+                $this->originalUuid = $customer->getCustomAttribute('uuid')?->getValue();
+                if (!$this->customerUuidHelper->isUuidValid($this->originalUuid)) {
+                    $uuid = $this->customerUuidHelper->createUuid();
+                    $customer->setCustomAttribute('uuid', $uuid);
+                }
             }
+        }catch(DuplicateUuidException | InvalidUuidException | UuidException){
+            throw new LocalizedException(__("Error processing UUID. Try resubmitting the form."));
         }
         return [$customer];
     }
@@ -87,6 +89,5 @@ class CreateUuidAttributeValue
         }
         return $customer;
     }
-
 
 }
