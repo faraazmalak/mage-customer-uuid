@@ -23,6 +23,7 @@ class CustomerUuid implements ResolverInterface
 
     /**
      * @param CustomerRepositoryInterface $customerRepository
+     * @param Logger $logger
      */
     public function __construct(CustomerRepositoryInterface $customerRepository, Logger $logger){
         $this->customerRepository = $customerRepository;

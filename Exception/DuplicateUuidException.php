@@ -4,7 +4,7 @@ namespace Quarry\CustomerUuid\Exception;
 
 use Magento\Framework\Phrase;
 use Quarry\CustomerUuid\Logger\Logger;
-use Exception;
+use \Exception;
 
 
 /**
@@ -13,7 +13,7 @@ use Exception;
 class DuplicateUuidException extends UuidException {
     /**
      * @param Phrase $phrase
-     * @param LoggerInterface|null $logger
+     * @param Logger|null $logger
      * @param Exception|null $cause
      */
     public function __construct(Phrase $phrase, Logger $logger=null, Exception $cause=null)

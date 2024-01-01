@@ -8,14 +8,15 @@ use Quarry\CustomerUuid\Logger\Logger;
 use \Exception;
 
 /**
- * Exception thrown when there is an error validating UUID.
+ * Exception thrown when customer uuid is invalid.
  */
 class InvalidUuidException extends LocalizedException
 {
     /**
      * @param Phrase $phrase
-     * @param LoggerInterface|null $logger
+     * @param Logger|null $logger
      * @param Exception|null $cause
+     * @param int $code
      */
     public function __construct(Phrase $phrase, Logger $logger = null, Exception $cause=null, $code=0)
     {

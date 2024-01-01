@@ -8,13 +8,13 @@ use Magento\Framework\Phrase;
 use Quarry\CustomerUuid\Logger\Logger;
 
 /**
- * Exception thrown when there is an graphQl error fetching customer uuid
+ * Exception thrown when there is an graphQl error resolving customer uuid
  */
 class GraphQlUuidException extends GraphQlInputException
 {
     /**
      * @param Phrase $phrase
-     * @param LoggerInterface|null $logger
+     * @param Logger|null $logger
      * @param Exception|null $cause
      * @param int $code
      */

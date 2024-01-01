@@ -8,7 +8,7 @@ use Magento\Framework\Phrase;
 use Quarry\CustomerUuid\Logger\Logger;
 
 /**
- * Exception thrown when there is an error validating customer uuid
+ * Exception thrown when customer uuid is invalid
  */
 class GraphQlInvalidUuidException extends GraphQlInputException
 {

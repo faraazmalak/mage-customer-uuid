@@ -30,6 +30,7 @@ class CreateUuidAttributeValue implements DataPatchInterface
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param CollectionFactory $customerCollectionFactory
      * @param CustomerRepositoryInterface $customerRepository
+     * @param CustomerUuid $customerUuidHelper
      * @param Logger $logger
      */
     public function __construct(
@@ -72,7 +73,7 @@ class CreateUuidAttributeValue implements DataPatchInterface
     }
 
     /**
-     * Create uuid for existing customers
+     * Create uuid for existing customers, with no uuid assigned
      *
      * @return void
      * @throws DuplicateUuidException

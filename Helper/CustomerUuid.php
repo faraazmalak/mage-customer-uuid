@@ -10,6 +10,7 @@ use Quarry\CustomerUuid\Exception\InvalidUuidException;
 use Quarry\CustomerUuid\Exception\UuidException;
 use Quarry\CustomerUuid\Logger\Logger;
 use \Magento\Customer\Model\ResourceModel\Customer\Collection;
+use \Exception;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -36,10 +37,9 @@ class CustomerUuid extends AbstractHelper
     {
         try{
             $uuid = Uuid::uuid4()->toString();
-        }catch(\Exception $e){
+        }catch(Exception $e){
             throw new UuidException(__("Error generating a UUID."), $this->logger, $e);
         }
-
         if ($this->isUuidDuplicate($uuid)) {
             $message = __("UUID $uuid has already been assigned to another customer.");
             throw new DuplicateUuidException($message, $this->logger);
@@ -62,7 +62,7 @@ class CustomerUuid extends AbstractHelper
             $this->customerCollection->addAttributeToFilter('uuid', $uuid);
             $isUuidDuplicate = $this->customerCollection->getSize() > 0;
         } catch (LocalizedException $e) {
-            $errorMessage = __("Unable to validate uniqueness of UUID $uuid.");
+            $errorMessage = __("Unable to check if UUID $uuid is assigned to another customer.");
             throw new InvalidUuidException($errorMessage, $this->logger, $e);
         }
         return $isUuidDuplicate;

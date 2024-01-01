@@ -2,7 +2,6 @@
 
 namespace Quarry\CustomerUuid\Plugin;
 
-use Exception;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory;
@@ -14,7 +13,6 @@ use Quarry\CustomerUuid\Exception\UuidException;
 use Quarry\CustomerUuid\Exception\InvalidUuidException;
 use Quarry\CustomerUuid\Logger\Logger;
 use Quarry\CustomerUuid\Helper\CustomerUuid;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Intercepts customer save operation,
@@ -48,7 +46,7 @@ class CreateUuidAttributeValue
      * @return CustomerInterface[]
      * @throws DuplicateUuidException
      * @throws UuidException
-     * @throws InvalidUuidException
+     * @throws InvalidUuidException|LocalizedException
      */
     public function beforeSave(CustomerRepositoryInterface $customerRepository, CustomerInterface $customer): array
     {

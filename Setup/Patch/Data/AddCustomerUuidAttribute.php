@@ -29,6 +29,7 @@ class AddCustomerUuidAttribute implements DataPatchInterface
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param CustomerSetupFactory $customerSetupFactory
      * @param AttributeResource $attributeResource
+     * @param AttributeSetFactory $attributeSetFactory
      * @param Logger $logger
      */
     public function __construct(

@@ -8,12 +8,12 @@ use Quarry\CustomerUuid\Logger\Logger;
 use Exception;
 
 /**
- * Base exception class, with logging functionality. Other exceptions in this module, extend this class
+ * Generic class, for catching customer uuid exceptions
  */
 class UuidException extends LocalizedException{
     /**
      * @param Phrase $phrase
-     * @param LoggerInterface|null $logger
+     * @param Logger|null $logger
      * @param Exception|null $cause
      * @param int $code
      */
