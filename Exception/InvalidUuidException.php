@@ -5,7 +5,7 @@ namespace Quarry\CustomerUuid\Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Quarry\CustomerUuid\Logger\Logger;
-use Exception;
+use \Exception;
 
 /**
  * Exception thrown when there is an error validating UUID.
@@ -17,9 +17,9 @@ class InvalidUuidException extends LocalizedException
      * @param LoggerInterface|null $logger
      * @param Exception|null $cause
      */
-    public function __construct(Phrase $phrase, Logger $logger = null, Exception $cause=null)
+    public function __construct(Phrase $phrase, Logger $logger = null, Exception $cause=null, $code=0)
     {
-        parent::__construct($phrase, $logger, $cause);
+        parent::__construct($phrase, $cause, $code);
         if ($logger !== null) {
             $cause = $cause ?? $this;
             $logger->logCritical("{$phrase->render()}", $cause);
