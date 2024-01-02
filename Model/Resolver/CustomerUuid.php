@@ -58,7 +58,7 @@ class CustomerUuid implements ResolverInterface
             throw new GraphQlInvalidUuidException(__("UUID cannot be null"), $this->logger);
         }else{
             if(!$this->customerUuidHelper->isUuidValid($uuid)){
-                throw new GraphQlInvalidUuidException(__("Invalid UUID"), $this->logger);
+                throw new GraphQlInvalidUuidException(__("UUID '$uuid' has an invalid format."), $this->logger);
             }
         }
         return $uuid ;
