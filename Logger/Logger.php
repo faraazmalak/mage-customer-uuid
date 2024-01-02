@@ -9,6 +9,11 @@ use Exception;
  */
 class Logger extends \Monolog\Logger
 {
+    public function __construct(string $name='logger', array $handlers = [])
+    {
+        parent::__construct($name, $handlers);
+    }
+
     /**
      * @param string $message
      * @param Exception|null $e
