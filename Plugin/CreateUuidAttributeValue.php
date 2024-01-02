@@ -22,7 +22,7 @@ class CreateUuidAttributeValue
 {
     private Logger $logger;
     private ManagerInterface $messageManager;
-    private string $originalUuid = '';
+    private $originalUuid; // Can be of type null or string
     private bool $isNewCustomer = true;
     private CustomerUuid $customerUuidHelper;
 
