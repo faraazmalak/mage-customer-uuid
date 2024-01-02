@@ -49,7 +49,7 @@ class Logger extends \Monolog\Logger
      */
     public function logInfo(string $message, Exception $e = null): void
     {
-        $message = $$e !== null ? $this->getExceptionDetails($message, $e) : $message;
+        $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
         $this->info($message);
     }
 
