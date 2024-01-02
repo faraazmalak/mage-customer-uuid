@@ -2,7 +2,7 @@
 
 namespace Quarry\CustomerUuid\Logger;
 
-use Exception;
+use \Exception;
 
 /**
  * Logger to log extension data to log file: var/log/quarry_customeruuid.log
@@ -21,8 +21,13 @@ class Logger extends \Monolog\Logger
      */
     public function logCritical(string $message, Exception $e = null): void
     {
-        $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
-        $this->critical($message);
+        try{
+            $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
+            $this->critical($message);
+        }catch(Exception $e){
+            error_log("Error writing to log file: " . $e->getMessage());
+        }
+
     }
 
     /**
@@ -32,8 +37,12 @@ class Logger extends \Monolog\Logger
      */
     public function logError(string $message, Exception $e = null): void
     {
-        $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
-        $this->error($message);
+        try{
+            $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
+            $this->error($message);
+        }catch(Exception $e){
+            error_log("Error writing to log file: " . $e->getMessage());
+        }
     }
 
     /**
@@ -43,8 +52,12 @@ class Logger extends \Monolog\Logger
      */
     public function logWarning(string $message, Exception $e = null): void
     {
-        $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;;
-        $this->warning($message);
+        try{
+            $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;;
+            $this->warning($message);
+        }catch(Exception $e){
+            error_log("Error writing to log file: " . $e->getMessage());
+        }
     }
 
     /**
@@ -54,8 +67,12 @@ class Logger extends \Monolog\Logger
      */
     public function logInfo(string $message, Exception $e = null): void
     {
-        $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
-        $this->info($message);
+        try{
+            $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
+            $this->info($message);
+        }catch(Exception $e){
+            error_log("Error writing to log file: " . $e->getMessage());
+        }
     }
 
     /**
@@ -65,8 +82,13 @@ class Logger extends \Monolog\Logger
      */
     public function logDebug(string $message, Exception $e=null): void
     {
-        $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
-        $this->debug($message);
+        try{
+            $message = $e !== null ? $this->getExceptionDetails($message, $e) : $message;
+            $this->debug($message);
+        }catch(Exception $e){
+            error_log("Error writing to log file: " . $e->getMessage());
+        }
+
     }
 
     /**
