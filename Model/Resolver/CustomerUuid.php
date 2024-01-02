@@ -11,7 +11,7 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Quarry\CustomerUuid\Exception\GraphQl\GraphQlUuidException;
 use Quarry\CustomerUuid\Exception\GraphQl\GraphQlInvalidUuidException;
 use Quarry\CustomerUuid\Logger\Logger;
-use Ramsey\Uuid\Uuid;
+use Quarry\CustomerUuid\Helper\CustomerUuid As CustomerUuidHelper;
 
 /**
  * Resolver to retrieve uuid based on auth token
@@ -20,14 +20,16 @@ class CustomerUuid implements ResolverInterface
 {
     private CustomerRepositoryInterface $customerRepository;
     private Logger $logger;
+    private CustomerUuidHelper $customerUuidHelper;
 
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Logger $logger
      */
-    public function __construct(CustomerRepositoryInterface $customerRepository, Logger $logger){
+    public function __construct(CustomerRepositoryInterface $customerRepository, Logger $logger, CustomerUuidHelper $customerUuidHelper){
         $this->customerRepository = $customerRepository;
         $this->logger=$logger;
+        $this->customerUuidHelper = $customerUuidHelper;
     }
 
     /**
@@ -55,8 +57,7 @@ class CustomerUuid implements ResolverInterface
         if($uuid === null){
             throw new GraphQlInvalidUuidException(__("UUID cannot be null"), $this->logger);
         }else{
-            $isUuidValid = @(Uuid::isValid($uuid)) ?? false;
-            if(!$isUuidValid){
+            if(!$this->customerUuidHelper->isUuidValid($uuid)){
                 throw new GraphQlInvalidUuidException(__("Invalid UUID"), $this->logger);
             }
         }
