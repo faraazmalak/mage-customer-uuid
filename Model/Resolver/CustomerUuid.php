@@ -51,13 +51,13 @@ class CustomerUuid implements ResolverInterface
             throw new GraphQlUuidException(__("Customer ID $customerId not found."), $this->logger, $e);
         }
 
-        $uuid = $customer->getCustomAttribute('uuid')?->getValue() ?? '';
-        if(strlen($uuid) === 0){
+        $uuid = $customer->getCustomAttribute('uuid')?->getValue();
+        if($uuid === null){
             throw new GraphQlInvalidUuidException(__("UUID cannot be null"), $this->logger);
         }else{
             $isUuidValid = @(Uuid::isValid($uuid)) ?? false;
             if(!$isUuidValid){
-                throw new GraphQlInvalidUuidException(__("Invalid UUID format"), $this->logger);
+                throw new GraphQlInvalidUuidException(__("Invalid UUID"), $this->logger);
             }
         }
         return $uuid ;
