@@ -51,19 +51,26 @@ class CreateUuidAttributeValue
     public function beforeSave(CustomerRepositoryInterface $customerRepository, CustomerInterface $customer): array
     {
         try{
-            // $customer->getId() returns null for new customers
-            $this->isNewCustomer = $customer->getId() === null;
+            $customerId = $customer->getId();
+            // $customerId is null for new customers
+            $this->isNewCustomer = $customerId === null;
             if($this->isNewCustomer){
                 $uuid = $this->customerUuidHelper->createUuid();
                 $customer->setCustomAttribute('uuid', $uuid);
+                $this->logger->logInfo("UUID $uuid assigned to new customer ID $customerId");
             }else{
                 $this->originalUuid = $customer->getCustomAttribute('uuid')?->getValue();
                 if (!$this->customerUuidHelper->isUuidValid($this->originalUuid)) {
                     $uuid = $this->customerUuidHelper->createUuid();
                     $customer->setCustomAttribute('uuid', $uuid);
+                    $this->logger->logWarning("UUID $uuid changed for customer ID $customerId");
                 }
             }
-        }catch(DuplicateUuidException | InvalidUuidException | UuidException){
+        }catch(InvalidUuidException){
+            throw new LocalizedException(__("Encountered an invalid UUID. Try resubmitting the form."));
+        }catch(DuplicateUuidException){
+            throw new LocalizedException(__("Could not create a unique UUID. Try resubmitting the form."));
+        }catch(UuidException){
             throw new LocalizedException(__("Error processing UUID. Try resubmitting the form."));
         }
         return [$customer];

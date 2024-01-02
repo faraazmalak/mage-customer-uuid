@@ -9,8 +9,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
-use Quarry\CustomerUuid\Exception\DuplicateUuidException;
-use Quarry\CustomerUuid\Exception\InvalidUuidException;
 use Quarry\CustomerUuid\Exception\UuidException;
 use Quarry\CustomerUuid\Helper\CustomerUuid;
 use Quarry\CustomerUuid\Logger\Logger;
@@ -77,12 +75,8 @@ class CreateUuidAttributeValue implements DataPatchInterface, PatchRevertableInt
      * Create uuid for existing customers, with no uuid assigned
      *
      * @return void
-     * @throws DuplicateUuidException
-     * @throws UuidException
-     * @throws \Magento\Framework\Exception\InputException
      * @throws LocalizedException
-     * @throws NoSuchEntityException
-     * @throws \Magento\Framework\Exception\State\InputMismatchException
+     * @throws UuidException
      */
     public function apply()
     {
@@ -94,15 +88,12 @@ class CreateUuidAttributeValue implements DataPatchInterface, PatchRevertableInt
         foreach ($customersWithoutUuid as $customer) {
             $customerId = $customer->getId();
             try {
-                $uuid = $this->customerUuidHelper->createUuid();
                 $customer = $this->customerRepository->getById($customerId);
-
-                $customer->setCustomAttribute('uuid', $uuid);
+                // Saving the customer triggers the plugin to create a new UUID
                 $this->customerRepository->save($customer);
-                $this->logger->logInfo("UUID $uuid created for customer ID $customerId");
             } catch (NoSuchEntityException $e) {
                 $this->logger->logWarning("Customer ID $customerId does not exist.");
-            } catch (DuplicateUuidException | InvalidUuidException | UuidException) {
+            } catch (LocalizedException) {
                 $customersWithError[] = $customerId;
                 $this->logger->logCritical("Failed to assign UUID for customer ID: $customerId. {$e->getMessage()}");
             }
