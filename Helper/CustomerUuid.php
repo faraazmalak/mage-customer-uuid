@@ -76,9 +76,11 @@ class CustomerUuid extends AbstractHelper
      */
     public function isUuidValid($uuid): bool
     {
-        $uuid = $uuid ?? '';
-        return @(Uuid::isValid($uuid)) ?? false;
+        try{
+            $uuid = $uuid ?? '';
+            return Uuid::isValid($uuid);
+        }catch(Exception){
+            return false;
+        }
     }
-
-
 }
