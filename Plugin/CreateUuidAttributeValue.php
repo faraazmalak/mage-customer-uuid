@@ -63,7 +63,7 @@ class CreateUuidAttributeValue
                 if (!$this->customerUuidHelper->isUuidValid($this->originalUuid)) {
                     $uuid = $this->customerUuidHelper->createUuid();
                     $customer->setCustomAttribute('uuid', $uuid);
-                    $this->logger->logWarning("UUID $uuid changed for customer ID $customerId");
+                    $this->logger->logWarning("UUID changed to $uuid for customer ID $customerId");
                 }
             }
         }catch(InvalidUuidException){
