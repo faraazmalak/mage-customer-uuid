@@ -8,6 +8,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Quarry\CustomerUuid\Exception\DuplicateUuidException;
 use Quarry\CustomerUuid\Exception\InvalidUuidException;
 use Quarry\CustomerUuid\Exception\UuidException;
@@ -18,7 +19,7 @@ use Quarry\CustomerUuid\Logger\Logger;
 /**
  * Patch to populate UUID for existing customers, when setup:upgrade is run
  */
-class CreateUuidAttributeValue implements DataPatchInterface
+class CreateUuidAttributeValue implements DataPatchInterface, PatchRevertableInterface
 {
     private $moduleDataSetup;
     private $customerCollection;
@@ -99,7 +100,6 @@ class CreateUuidAttributeValue implements DataPatchInterface
                 $customer->setCustomAttribute('uuid', $uuid);
                 $this->customerRepository->save($customer);
                 $this->logger->logInfo("UUID $uuid created for customer ID $customerId");
-
             } catch (NoSuchEntityException $e) {
                 $this->logger->logWarning("Customer ID $customerId does not exist.");
             } catch (DuplicateUuidException | InvalidUuidException | UuidException) {
@@ -114,4 +114,11 @@ class CreateUuidAttributeValue implements DataPatchInterface
         }
         $this->moduleDataSetup->endSetup();
     }
+
+    /**
+     * Adding this method, for this patch to unregister during module uninstallation.
+     *
+     * @return void
+     */
+    public function revert(){}
 }

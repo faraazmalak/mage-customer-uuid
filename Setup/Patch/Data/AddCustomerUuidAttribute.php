@@ -9,15 +9,16 @@ use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Quarry\CustomerUuid\Logger\Logger;
 use Quarry\CustomerUuid\Exception\UuidException;
 
 /**
  * Create and configure customer UUID attribute
  */
-class AddCustomerUuidAttribute implements DataPatchInterface
+class AddCustomerUuidAttribute implements DataPatchInterface, PatchRevertableInterface
 {
-    private ModuleDataSetupInterface $moduleDataSetup;
+    private $connection;
     private $customerSetup;
     private $attributeResource;
     private $attributeSetFactory;
@@ -40,7 +41,7 @@ class AddCustomerUuidAttribute implements DataPatchInterface
         Logger $logger
     )
     {
-        $this->moduleDataSetup = $moduleDataSetup;
+        $this->connection = $moduleDataSetup->getConnection();
         $this->customerSetup = $customerSetupFactory->create(['setup' => $moduleDataSetup]);
         $this->attributeResource = $attributeResource;
         $this->attributeSetFactory = $attributeSetFactory;
@@ -78,7 +79,7 @@ class AddCustomerUuidAttribute implements DataPatchInterface
      */
     public function apply()
     {
-        $this->moduleDataSetup->getConnection()->startSetup();
+        $this->connection->startSetup();
         try {
             // Add customer attribute with settings
             $this->customerSetup->addAttribute(
@@ -107,7 +108,7 @@ class AddCustomerUuidAttribute implements DataPatchInterface
             // Add attribute to default attribute set and group
             $this->customerSetup->addAttributeToSet(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
-                $customerEntity->getDefaultAttributeSetId(),
+                $attributeSetId,
                 $attributeSet->getDefaultGroupId($attributeSetId),
                 self::ATTRIBUTE_NAME
             );
@@ -121,6 +122,28 @@ class AddCustomerUuidAttribute implements DataPatchInterface
         } catch (Exception $e) {
             throw new UuidException(__($e->getMessage()), $this->logger);
         }
-        $this->moduleDataSetup->getConnection()->endSetup();
+        $this->connection->endSetup();
+    }
+
+    /**
+     * Removes the customer UUID attribute
+     *
+     * @return void
+     * @throws UuidException
+     */
+    public function revert(){
+        try{
+            $this->connection->startSetup();
+            $eavConfig = $this->customerSetup->getEavConfig();
+            $attribute = $eavConfig->getAttribute(CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER, self::ATTRIBUTE_NAME);
+            $this->attributeResource->delete($attribute);
+            $this->customerSetup->removeAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::ATTRIBUTE_NAME);
+            $eavConfig->clear();
+            $this->connection->endSetup();
+        }catch(Exception $e){
+            throw new UuidException(__("Try uninstalling the module again. {$e->getMessage()}"), $this->logger);
+        }
     }
 }
