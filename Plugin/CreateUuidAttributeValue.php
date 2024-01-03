@@ -57,7 +57,7 @@ class CreateUuidAttributeValue
             if($this->isNewCustomer){
                 $uuid = $this->customerUuidHelper->createUuid();
                 $customer->setCustomAttribute('uuid', $uuid);
-                $this->logger->logInfo("UUID $uuid assigned to new customer ID $customerId");
+                $this->logger->logInfo("UUID $uuid assigned to new customer");
             }else{
                 $this->originalUuid = $customer->getCustomAttribute('uuid')?->getValue();
                 if (!$this->customerUuidHelper->isUuidValid($this->originalUuid)) {
