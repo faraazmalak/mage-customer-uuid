@@ -8,20 +8,19 @@ The `uuid` attribute is exposed through a public GraphQl API for authenticated u
 ## Key features and implementation details
 
 ### 1. UUID implementation
+1. The extension uses UUID version 4, in accordance with Magento's best practices. UUID version 4 provides a very high probability of uniqueness due to its reliance on random values.
+2. The extension uses Magento 2's plugin architecture, to intercept customer save and update operations. During this interception, new UUIDs are assigned and existing ones are re-validated.
+4. Upon installation, the extension auto-assigns UUIDs to all the existing customers. This is implemented using Magento's data patches. 
+4. After the extension is installed, all new customers created are auto-assigned a UUID, just before the new customer record is committed to the database. 
+5. Before any customer (new or existing) is auto-assigned a UUID, the extension ensures that the same UUID is not assinged to another customer.
+6. To enforce data integrity, the extension always re-validates the existing UUID for a customer, whenever changes are made to the customer record, either from admin panel or storefront. If the assigned UUID is invalid, a new one is generated, validated and auto-assigned. A UI notification is also displayed on both admin panel and storefront.
+7. Extension logs all the UUID transactions to a log file.
 
-- The extension uses UUID version 4, in accordance with Magento's best practices. UUID version 4 provides a very high probability of uniqueness due to its reliance on random values.
-- Before any customer (new or existing) is assigned a UUID, the extension ensures that the UUID is not assinged to any other customer.
-- To enforce data integrity, the extension always validates the assigned UUID, whenever changes are made to an existing customer record, either from admin panel or storefront. If the assigned UUID is invalid, a new one is generated, validated and assigned. When this happens, a UI notification is displayed on both admin panel and storefront.
-- The extension uses Magento 2's plugin architecture, to intercept a customer save operation. During this interception, new UUIDs are assigned and existing ones are validated.
 
-### 2. Accessing UUID via Customer Grid
-The UUIDs are filterable, searchable and sortable in the customer grid.
-![](C:\Users\FaraazMalak\Desktop\customer-grid.jpg)
+
 
 ### 3. Accessing UUID via GraphQl
-For authenticated users, UUID is accessible via GraphQL API on the Customer object.![customer-grid](https://github.com/faraazmalak/mage-customer-uuid/assets/3054432/15863948-86f0-452a-a332-a808e1b1e008)
-
-Magento's GraphQl endpoint is `/graphql` and can be accessed at `http://<your-domain.com>/graphql`. It is recommended to use a GraphQl client like Postman to access this endpoint.
+For authenticated users, UUID is accessible via GraphQL API on the Customer object. Magento's GraphQl endpoint is `/graphql` and can be accessed at `http://<your-domain.com>/graphql`. It is recommended to use a GraphQl client like Postman to access this endpoint.
 
 First, a bearer toekn must be obtained by calling `GenerateCustomerToken` mutation.
 Example:
@@ -33,62 +32,53 @@ mutation GenerateCustomerToken {
 }
 
 ```
-
-Next, this token can be passed along with a graphQL 
-
-### 4. Visibility in Customer Grid
-
-- Display the `uuid` attribute in the customer grid for easy reference.
-
-### 5. Read-Only Attribute
-
-- Make the `uuid` attribute read-only, preventing editing through the Magento 2 admin panel.
-
-### 6. Automatic Assignment
-
-- Upon module installation, assign a unique `uuid` to all existing customers.
-
-### 7. Automatic Assignment for New Customers
-
-- When a new customer is created, automatically generate and assign a unique `uuid`.
-
-### 8. Composer Installation
-
-- Implement the module as a Magento 2 extension, installable via `composer`.
-
-### 9. Bonus: Testing
-
-- Include comprehensive tests to ensure the functionality and integrity of the module.
-
-## Technical Implementation
-
-- Utilize Magento 2 best practices for extension development.
-- Implement GraphQL queries and resolvers for the `uuid` attribute.
-- Enforce attribute uniqueness through proper data validation.
-- Configure the customer grid to display the `uuid` attribute.
-- Set up read-only permissions for the `uuid` attribute.
-- Implement hooks for automatic assignment during module installation and customer creation.
+Next, this auth token must be passed along with the GraphQl query to retrieve UUID.
+Sample GraphQl query
 
 
-## Installation
+Below is a sample response to the above GraphQl query: 
 
-1. Install the module using composer:
-
+## Recommended steps before extension installation
+1. Ensure that Magento installation has a few customers created. This will allow the extension to auto-assign UUID during installation. 
+2. The extension logs all UUID transations at ``<magento_root>/var/log/quarry_customeruuid.log``. Please ensure this log file has write-permissions enabled. If not, the extension falls back to PHP's system logger.
+3. Enable Magento's developer mode
    ```bash
-   composer require your-vendor/module-uuid-attribute
+   ```
+4. Disable Magento's cache
+   ```bash
    ```
 
-2. Run Magento setup upgrade:
+## Extension installation
 
+1. Install the module using composer:
+   ```bash
+   composer require quarry/customer-uuid
+   ```
+2. Flush Magento's cache
+   ```bash
+   ```
+3. Clean Magento's cache
+   ```bash
+   ```
+4. Enable the UUID extension
+   ```bash
+   ```
+5. Run Magento setup upgrade:
    ```bash
    bin/magento setup:upgrade
    ```
-
-3. Clear the cache:
-
+6. Run di compile:
    ```bash
-   bin/magento cache:clean
    ```
+## Functionality testing
+### 1. Access Customer Grid (admin panel)
+Expected result: 
+1. Customer grid, should show a new UUID column, with UUIDs assigned to all the existing customers.
+2. These read-only UUIDs are filterable, searchable and sortable in the customer grid.
+![customer-grid](https://github.com/faraazmalak/mage-customer-uuid/assets/3054432/15863948-86f0-452a-a332-a808e1b1e008)
+
+### 2. Create new customer from admin panel
+Expected result: The new customer record should show up in the customer grid, with a UUID assigned. 
 
 ## API Access
 
