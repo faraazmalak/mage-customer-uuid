@@ -19,7 +19,8 @@ The UUIDs are filterable, searchable and sortable in the customer grid.
 ![](C:\Users\FaraazMalak\Desktop\customer-grid.jpg)
 
 ### 3. Accessing UUID via GraphQl
-For authenticated users, UUID is accessible via GraphQL API on the Customer object.
+For authenticated users, UUID is accessible via GraphQL API on the Customer object.![customer-grid](https://github.com/faraazmalak/mage-customer-uuid/assets/3054432/15863948-86f0-452a-a332-a808e1b1e008)
+
 Magento's GraphQl endpoint is `/graphql` and can be accessed at `http://<your-domain.com>/graphql`. It is recommended to use a GraphQl client like Postman to access this endpoint.
 
 First, a bearer toekn must be obtained by calling `GenerateCustomerToken` mutation.
