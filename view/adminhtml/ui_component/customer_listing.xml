@@ -7,7 +7,8 @@
                 </item>
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">UUID</item>
-                    <item name="sortOrder" xsi:type="number">11</item>
+                    <item name="sortOrder" xsi:type="number">2</item>
+                    <item name="filter" xsi:type="string">select</item>
                 </item>
             </argument>
         </column>
