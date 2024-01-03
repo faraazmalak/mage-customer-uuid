@@ -6,8 +6,6 @@ This Magento 2 extension introduces a new read-only attribute, `uuid`, for custo
 The `uuid` attribute is exposed through a public GraphQl API for authenticated users and is also be displayed in the customer grid.
 
 ## Key features and implementation details
-
-### 1. UUID implementation
 1. The extension uses UUID version 4, in accordance with Magento's best practices. UUID version 4 provides a very high probability of uniqueness due to its reliance on random values.
 2. The extension uses Magento 2's plugin architecture, to intercept customer save and update operations. During this interception, new UUIDs are assigned and existing ones are re-validated.
 4. Upon installation, the extension auto-assigns UUIDs to all the existing customers. This is implemented using Magento's data patches. 
@@ -16,27 +14,6 @@ The `uuid` attribute is exposed through a public GraphQl API for authenticated u
 6. To enforce data integrity, the extension always re-validates the existing UUID for a customer, whenever changes are made to the customer record, either from admin panel or storefront. If the assigned UUID is invalid, a new one is generated, validated and auto-assigned. A UI notification is also displayed on both admin panel and storefront.
 7. Extension logs all the UUID transactions to a log file.
 
-
-
-
-### 3. Accessing UUID via GraphQl
-For authenticated users, UUID is accessible via GraphQL API on the Customer object. Magento's GraphQl endpoint is `/graphql` and can be accessed at `http://<your-domain.com>/graphql`. It is recommended to use a GraphQl client like Postman to access this endpoint.
-
-First, a bearer toekn must be obtained by calling `GenerateCustomerToken` mutation.
-Example:
-```
-mutation GenerateCustomerToken {
-    generateCustomerToken(email: "yourname@yourdomain.com", password: "yourpass") {
-    token
-    }
-}
-
-```
-Next, this auth token must be passed along with the GraphQl query to retrieve UUID.
-Sample GraphQl query
-
-
-Below is a sample response to the above GraphQl query: 
 
 ## Recommended steps before extension installation
 1. Ensure that Magento installation has a few customers created. This will allow the extension to auto-assign UUID during installation. 
@@ -70,32 +47,41 @@ Below is a sample response to the above GraphQl query:
 6. Run di compile:
    ```bash
    ```
-## Functionality testing
-### 1. Access Customer Grid (admin panel)
-Expected result: 
+## Functionality specifications
+### 1. Existing customers are auto-assigned UUID during extension installation. 
 1. Customer grid, should show a new UUID column, with UUIDs assigned to all the existing customers.
 2. These read-only UUIDs are filterable, searchable and sortable in the customer grid.
 ![customer-grid](https://github.com/faraazmalak/mage-customer-uuid/assets/3054432/15863948-86f0-452a-a332-a808e1b1e008)
+3. Log file should show all the exsiting customers,  to whom new UUIDs have been assigned.
+Sample log file output:
 
-### 2. Create new customer from admin panel
-Expected result: The new customer record should show up in the customer grid, with a UUID assigned. 
+### 2. New customers created from admin panel, are auto-assigned UUID
+Expected result: 
+1. The new customer record should show up in the customer grid, with a UUID assigned.
+2. The log file should contain an entry for this transaction.
+Sample log file entry:
 
-## API Access
+### 2. New customers created from storefront, are auto-assigned UUID
+Expected result: 
+1. The new customer record should show up in the customer grid, with a UUID assigned.
+2. The log file should contain an entry for this transaction.
+Sample log file entry:
 
-- The `uuid` attribute can be accessed via GraphQL on the Customer object.
+### 3. UUID is accessible through GraphQl API, for authenticated users.
+For authenticated users, UUID is accessible via GraphQL API on the Customer object. Magento's GraphQl endpoint is `/graphql` and can be accessed at `http://<your-domain.com>/graphql`. It is recommended to use a GraphQl client like Postman to access this endpoint.
 
-## Testing
+First, a bearer toekn must be obtained by calling `GenerateCustomerToken` mutation.
+Example:
+```
+mutation GenerateCustomerToken {
+    generateCustomerToken(email: "yourname@yourdomain.com", password: "yourpass") {
+    token
+    }
+}
 
-- To run tests, execute:
+```
+Next, this auth token must be passed along with the GraphQl query to retrieve UUID.
+Sample GraphQl query
 
-   ```bash
-   vendor/bin/phpunit
-   ```
 
-## Contribution
-
-Contributions are welcome! Please follow Magento 2 coding standards and create a pull request.
-
-## License
-
-This Magento 2 extension is open-source and released under the [MIT License](LICENSE).
+Below is a sample response to the above GraphQl query: 
