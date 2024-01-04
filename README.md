@@ -77,7 +77,7 @@ Expected outcome:
 2. The log file should contain an entry for this transaction.
 Log entry message should be in following format:
 ```
-UUID <uuid_code> assigned to new customer
+[2024-01-04T18:37:06.483549+00:00] logger.INFO: UUID <uuid_code> assigned to new customer ID
 ```
 
 ### 2. New customers created from storefront, are auto-assigned UUID
@@ -86,7 +86,7 @@ Expected outcome:
 2. The log file should contain an entry for this transaction.
 Log entry message should be in following format:
 ```
-UUID <uuid_code> assigned to new customer
+[2024-01-04T18:37:06.483549+00:00] logger.INFO: UUID <uuid_code> assigned to new customer ID
 ```
 
 ### 3. UUID is accessible through GraphQl API, for authenticated users.
