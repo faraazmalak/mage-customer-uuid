@@ -9,11 +9,10 @@ The `uuid` attribute is exposed through a public GraphQl API for authenticated u
 1. The extension uses UUID version 4, in accordance with Magento's best practices. UUID version 4 provides a very high probability of uniqueness due to its reliance on random values.
 2. The extension uses Magento 2's plugin architecture, to intercept customer save and update operations. During this interception, new UUIDs are assigned and existing ones are re-validated.
 4. Upon installation, the extension auto-assigns UUIDs to all the existing customers. This is implemented using Magento's data patches. 
-4. After the extension is installed, all new customers created are auto-assigned a UUID, just before the new customer record is committed to the database. 
+4. After the extension is installed, all new customers created thereafter are auto-assigned a UUID, just before the new customer record is committed to the database. 
 5. Before any customer (new or existing) is auto-assigned a UUID, the extension ensures that the same UUID is not assinged to another customer.
 6. To enforce data integrity, the extension always re-validates the existing UUID for a customer, whenever changes are made to the customer record, either from admin panel or storefront. If the assigned UUID is invalid, a new one is generated, validated and auto-assigned. A UI notification is also displayed on both admin panel and storefront.
 7. Extension logs all the UUID transactions to a log file.
-
 
 ## Recommended steps before extension installation
 1. Ensure that Magento installation has a few customers created. This will allow the extension to auto-assign UUID during installation. 
@@ -26,7 +25,6 @@ The `uuid` attribute is exposed through a public GraphQl API for authenticated u
    ```
 
 ## Extension installation
-
 1. Install the module using composer:
    ```bash
    composer require quarry/customer-uuid
