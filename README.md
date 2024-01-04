@@ -2,41 +2,51 @@
 
 ## Objective
 
-This Magento 2 extension introduces a new read-only attribute, `uuid`, for customers. The extension ensures the uniqueness of the UUID for each customer and automatically assigns it to existing and new customers.
-The `uuid` attribute is exposed through a public GraphQl API for authenticated users and is also be displayed in the customer grid.
+This Magento 2 extension introduces a new read-only attribute, `uuid`, for customers. The extension ensures the uniqueness of the UUID for each customer and automatically assigns it to existing and new customers. The `uuid` attribute is exposed through a public GraphQl API for authenticated users and is also be displayed in the customer grid.
 
-## Key features and implementation details
+## Key Features and Implementation Details
 1. The extension uses UUID version 4, in accordance with Magento's best practices. UUID version 4 provides a very high probability of uniqueness due to its reliance on random values.
 2. The extension uses Magento 2's plugin architecture, to intercept customer save and update operations. During this interception, new UUIDs are assigned and existing ones are re-validated.
 4. Upon installation, the extension auto-assigns UUIDs to all the existing customers. This is implemented using Magento's data patches. 
-4. After the extension is installed, all new customers created thereafter are auto-assigned a UUID, just before the new customer record is committed to the database. 
-5. Before any customer (new or existing) is auto-assigned a UUID, the extension ensures that the same UUID is not assinged to another customer.
-6. To enforce data integrity, the extension always re-validates the existing UUID for a customer, whenever changes are made to the customer record, either from admin panel or storefront. If the assigned UUID is invalid, a new one is generated, validated and auto-assigned. A UI notification is also displayed on both admin panel and storefront.
-7. Extension logs all the UUID transactions to a log file.
+4. After the extension is installed, all new customers created thereafter are auto-assigned a UUID, just before the customer record is committed to the database. 
+5. Before any customer (new or existing) is assigned a UUID, the extension ensures that the same UUID is not assinged to another customer.
+6. To enforce data integrity, the extension always re-validates the existing UUID for a customer, whenever changes are made to the customer record, either from admin panel or storefront. If the assigned UUID is invalid, a new one is generated, validated and assigned. A UI notification is also displayed on both admin panel and storefront.
+8. UUIDs are displayed on customer grid, as read-only and are filterable, searchable and sortable.
+9. An authenticated user can read the UUID through the GraphQl API
+10. Extension logs all the UUID transactions to a log file.
 
-## Recommended steps before extension installation
+## Magento Compatability
+This extension has been developed and tested on Magento 2, with no other third-party extensions installed.
+
+
+## Recommended Steps Before Extension Installation
 1. Ensure that Magento installation has a few customers created. This will allow the extension to auto-assign UUID during installation. 
-2. The extension logs all UUID transations at ``<magento_root>/var/log/quarry_customeruuid.log``. Please ensure this log file has write-permissions enabled. If not, the extension falls back to PHP's system logger.
+2. The extension logs all UUID transations to ``<magento_root>/var/log/quarry_customeruuid.log``. Please ensure this log file has write-permissions enabled. If not, the extension falls back to PHP's system logger.
 3. Enable Magento's developer mode
    ```bash
+   bin/magento deploy:mode:set developer
    ```
 4. Disable Magento's cache
    ```bash
+   bin/magento cache:disable
    ```
 
-## Extension installation
-1. Install the module using composer:
+## Extension Installation Process
+1. Install the extension using composer:
    ```bash
    composer require quarry/customer-uuid
    ```
 2. Flush Magento's cache
    ```bash
+   bin/magento cache:flush
    ```
 3. Clean Magento's cache
    ```bash
+   bin/magento cache:clean
    ```
 4. Enable the UUID extension
    ```bash
+   bin/magento module:enable Quarry_CustomerUuid
    ```
 5. Run Magento setup upgrade:
    ```bash
@@ -44,26 +54,37 @@ The `uuid` attribute is exposed through a public GraphQl API for authenticated u
    ```
 6. Run di compile:
    ```bash
+   bin/magento setup:di:compile
    ```
-## Functionality specifications
+## Verify the Extension Installation
 ### 1. Existing customers are auto-assigned UUID during extension installation. 
-1. Customer grid, should show a new UUID column, with UUIDs assigned to all the existing customers.
-2. These read-only UUIDs are filterable, searchable and sortable in the customer grid.
+Expected outcome:
+1. Customer grid, should show a new column labelled ``UUID``, with UUIDs assigned to all the existing customers.
+2. These read-only UUIDs must be filterable, searchable and sortable in the customer grid.
 ![customer-grid](https://github.com/faraazmalak/mage-customer-uuid/assets/3054432/15863948-86f0-452a-a332-a808e1b1e008)
-3. Log file should show all the exsiting customers,  to whom new UUIDs have been assigned.
-Sample log file output:
+3. Log file should show all the exsiting customer IDs, to whom new UUIDs have been assigned.
+Log entry message should be in following format:
+```
+UUID changed to <uuid_code> for customer ID <customer_id_number>
+```
 
 ### 2. New customers created from admin panel, are auto-assigned UUID
-Expected result: 
-1. The new customer record should show up in the customer grid, with a UUID assigned.
+Expected outcome: 
+1. The new customer record must show up in the customer grid, with a UUID assigned.
 2. The log file should contain an entry for this transaction.
-Sample log file entry:
+Log entry message should be in following format:
+```
+UUID <uuid_code> assigned to new customer
+```
 
 ### 2. New customers created from storefront, are auto-assigned UUID
-Expected result: 
-1. The new customer record should show up in the customer grid, with a UUID assigned.
+Expected outcome: 
+1. The new customer record should show up in the admin customer grid, with a UUID assigned.
 2. The log file should contain an entry for this transaction.
-Sample log file entry:
+Log entry message should be in following format:
+```
+UUID <uuid_code> assigned to new customer
+```
 
 ### 3. UUID is accessible through GraphQl API, for authenticated users.
 For authenticated users, UUID is accessible via GraphQL API on the Customer object. Magento's GraphQl endpoint is `/graphql` and can be accessed at `http://<your-domain.com>/graphql`. It is recommended to use a GraphQl client like Postman to access this endpoint.
@@ -79,7 +100,53 @@ mutation GenerateCustomerToken {
 
 ```
 Next, this auth token must be passed along with the GraphQl query to retrieve UUID.
-Sample GraphQl query
+Sample GraphQl query to retrieve UUID:
+```
+query Customer {
+    customer {
+        uuid
+    }
+}
 
-
+```
 Below is a sample response to the above GraphQl query: 
+```
+{
+    "data": {
+        "customer": {
+            "uuid": "8d56ce70-5ec1-4eaa-91f8-5cee9bb72d90"
+        }
+    }
+}
+```
+
+## Extension Uninstallation Process
+1. Disable the UUID extension
+   ```bash
+   bin/magento module:disable Quarry_CustomerUuid
+   ```
+2. Uninstall the UUID extension
+   ```bash
+   bin/magento module:uninstall --non-composer Quarry_CustomerUuid
+   ```
+3. Remove the extension using composer:
+   ```bash
+   composer remove quarry/customer-uuid
+   ```
+4. Flush Magento's cache
+   ```bash
+   bin/magento cache:flush
+   ```
+5. Clean Magento's cache
+   ```bash
+   bin/magento cache:clean
+   ```
+6. Run Magento setup upgrade:
+   ```bash
+   bin/magento setup:upgrade
+   ```
+7. Run di compile:
+   ```bash
+   bin/magento setup:di:compile
+   ```
+
