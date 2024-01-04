@@ -16,7 +16,10 @@ This Magento 2 extension introduces a new read-only attribute, `uuid`, for custo
 10. Extension logs all the UUID transactions to a log file.
 
 ## Magento Compatability
-This extension has been developed and tested on Magento 2, with no other third-party extensions installed.
+This extension has been developed and tested on ``Magento 2 version 2.4.6-p2``, with no other third-party extensions installed.
+
+## Setting-up Testing Environment
+This [docker-compose.yml](https://raw.githubusercontent.com/faraazmalak/magento_docker/main/docker-compose.yml) can be used to quickly spin-up a local testing environment, with Magento 2.4.6-p2, mariadb and elastic search installed. Once the ``docker-compose.yml`` file is downloaded,  ``docker-compose up -d`` can be used to download the docker images and setup the containers and volumes. 
 
 
 ## Recommended Steps Before Extension Installation
@@ -65,7 +68,7 @@ Expected outcome:
 3. Log file should show all the exsiting customer IDs, to whom new UUIDs have been assigned.
 Log entry message should be in following format:
 ```
-UUID changed to <uuid_code> for customer ID <customer_id_number>
+[2024-01-04T18:30:41.104753+00:00] logger.WARNING: UUID <uuid_code> changed for customer ID <customer_id>
 ```
 
 ### 2. New customers created from admin panel, are auto-assigned UUID
